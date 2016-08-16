@@ -36,4 +36,17 @@ const todos = (state = [], action) => {
   }
 };
 
-export default todos;
+export default todos;//reducer function
+
+export const getVisibleTodos = (state, filter) => { // selector function, it selects something from the current state
+  switch (filter) {
+    case 'all':
+      return state;
+    case 'active':
+      return state.filter(t => !t.completed);
+    case 'completed':
+      return state.filter(t => t.completed);
+    default:
+      throw new Error(`Unknown filter: ${filter}`);
+  }
+};

@@ -1,49 +1,70 @@
 import { combineReducers } from 'redux';
-import todo from './todo';
 
+//Lookup table, has all todos with id key
 const byId = (state = {}, action) => {
   switch (action.type) {
-    case 'ADD_TODO':
-    case 'TOGGLE_TODO':
-      return {
-        ...state,
-        [action.id]: todo(state[action.id], action), //computed property
-      }
+    case 'RECEIVE_TODOS':
+      const nextState = { ...state }; //shallow copy of the current state (it corresponds to the lookup table)
+      action.response.forEach(todo => {
+        nextState[todo.id] = todo; //fine to use a mutation in this case, this adds stuff based on response
+      });
+      return nextState;
     default:
     return state;
   }
 };
 
-//lookup table
+//these contains id based on filters
 const allIds = (state = [], action) => {
+  if(action.filter !== 'all') {
+    return state;
+  }
   switch (action.type) {
-    case 'ADD_TODO':
-      return [...state, action.id];
+    case 'RECEIVE_TODOS':
+      return action.response.map(todo => todo.id); //get the response from server then save the ids
     default:
       return state;
   }
 };
 
+const activeIds = (state = [], action) => {
+  if(action.filter !== 'active') {
+    return state;
+  }
+  switch (action.type) {
+    case 'RECEIVE_TODOS':
+      return action.response.map(todo => todo.id); //get the response from server then save the ids
+    default:
+      return state;
+  }
+};
+
+const completedIds = (state = [], action) => {
+  if(action.filter !== 'completed') {
+    return state;
+  }
+  switch (action.type) {
+    case 'RECEIVE_TODOS':
+      return action.response.map(todo => todo.id); //get the response from server then save the ids
+    default:
+      return state;
+  }
+};
+
+const idsByFilter = combineReducers({
+  all: allIds,
+  active: activeIds,
+  completed: completedIds,
+})
+
 const todos = combineReducers({
   byId,
-  allIds
+  idsByFilter
 });
 
 export default todos;//reducer function
 
-const getAllTodos = (state) =>
-  state.allIds.map(id => state.byId[id]); // map all the ids from allIds to the corresponding todos from byId
-
 export const getVisibleTodos = (state, filter) => { // selector function, it selects something from the current state
-  const allTodos = getAllTodos(state);
-  switch (filter) {
-    case 'all':
-      return allTodos;
-    case 'active':
-      return allTodos.filter(t => !t.completed);
-    case 'completed':
-      return allTodos.filter(t => t.completed);
-    default:
-      throw new Error(`Unknown filter: ${filter}`);
-  }
+  const ids = state.idsByFilter[filter];
+  return ids.map(id => state.byId[id]); //map the ids by filter to the lookup table
 };

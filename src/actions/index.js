@@ -1,4 +1,5 @@
 import { v4 } from 'node-uuid'; //create serialized id
+import { getIsFetching } from '../reducers';
 import * as api from '../api';
 
 export const addTodo = (text) => ({
@@ -12,10 +13,11 @@ export const toggleTodo = (id) => ({
   id,
 });
 
-export const requestTodos = (filter) => ({
+const requestTodos = (filter) => ({
   type: 'REQUEST_TODOS',
-  filter
+  filter,
 });
+
 
 const receiveTodos = (filter, response) => ({
   type: 'RECEIVE_TODOS',
@@ -23,8 +25,15 @@ const receiveTodos = (filter, response) => ({
   response,
 });
 
-//asynchronous action creator
-export const fetchTodos = (filter) =>
-  api.fetchTodos(filter).then(response =>
-    receiveTodos(filter, response)
+//thunk, needs dispatch function and getState
+export const fetchTodos = (filter) => (dispatch, getState) => {
+  if (getIsFetching(getState(), filter)) {
+    return Promise.resolve(); //already fetching, avoid race conditions
+  }
+
+  dispatch(requestTodos(filter)); //dispatch request async
+
+  return api.fetchTodos(filter).then(response =>
+    dispatch(receiveTodos(filter, response))
   );
+};

@@ -18,8 +18,7 @@ class VisibleTodoList extends Component {
   }
 
   fetchData(){
-    const { filter, requestTodos, fetchTodos } = this.props;
-    requestTodos(filter);
+    const { filter, fetchTodos } = this.props;
     fetchTodos(filter);
   }
 
@@ -27,7 +26,6 @@ class VisibleTodoList extends Component {
     //destructuring the props as toggle Todo as to be passed down under a different name
     const { toggleTodo, todos, isFetching } = this.props;
     //loading indicator
-    console.log(isFetching, todos);
     if (isFetching && !todos.length) {
       return <p>Loading ...</p>
     }

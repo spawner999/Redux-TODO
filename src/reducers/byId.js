@@ -7,6 +7,11 @@ const byId = (state = {}, action) => {
         nextState[todo.id] = todo; //fine to use a mutation in this case, this adds stuff based on response
       });
       return nextState;
+    case 'ADD_TODO_SUCCESS':
+      return {
+        ...state,
+        [action.response.id]: action.response, //add the new todo to the table
+      };
     default:
     return state;
   }

@@ -1,6 +1,7 @@
-//this function creates a reducer based on the filter
+import { combineReducers } from 'redux';
+
 const createList = (filter) => {
-  return (state = [], action) => {
+  const ids = (state = [], action) => {
     if (action.filter !== filter) {
       return state;
     }
@@ -11,8 +12,29 @@ const createList = (filter) => {
         return state;
     }
   };
+
+  const isFetching = (state = false, action) => {
+    if (action.filter !== filter) {
+      return state;
+    }
+    switch (action.type) {
+      case 'REQUEST_TODOS':
+          return true;
+      case 'RECEIVE_TODOS':
+          return false;
+      default:
+        return state;
+    }
+  };
+
+  return combineReducers({
+    ids,
+    isFetching,
+  });
 };
 
 export default createList;
 
-export const getIds = (state) => state; //this just returns the state of the list for now, but it could do other operations before that in the future
+export const getIds = (state) => state.ids;
+
+export const getIsFetching = (state) => state.isFetching;

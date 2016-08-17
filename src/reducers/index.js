@@ -19,3 +19,7 @@ export const getVisibleTodos = (state, filter) => { // selector function, it sel
   const ids = fromList.getIds(state.listByFilter[filter]);
   return ids.map(id => fromById.getTodo(state.byId, id)); //go through the getTodo function, not assumuning state.byID is necessaraly a lookup table, we are encapsulating the the reducer's state inside of the reducer itself
 };
+
+export const getIsFetching = (state, filter) => {
+  return fromList.getIsFetching(state.listByFilter[filter]);
+}

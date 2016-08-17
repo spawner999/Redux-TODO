@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import * as actions from '../actions';
 import TodoList from './TodoList';
-import { getVisibleTodos } from '../reducers';
+import { getVisibleTodos, getIsFetching } from '../reducers';
 
 //making this a react component so that it's possible to access its lifecycle and make the api call there
 class VisibleTodoList extends Component {
@@ -18,14 +18,20 @@ class VisibleTodoList extends Component {
   }
 
   fetchData(){
-    const { filter, fetchTodos } = this.props;
+    const { filter, requestTodos, fetchTodos } = this.props;
+    requestTodos(filter);
     fetchTodos(filter);
   }
-  
+
   render() {
     //destructuring the props as toggle Todo as to be passed down under a different name
-    const { toggleTodo, ...rest } = this.props;
-    return <TodoList {...rest} onTodoClick={toggleTodo} />; //presentational component
+    const { toggleTodo, todos, isFetching } = this.props;
+    //loading indicator
+    console.log(isFetching, todos);
+    if (isFetching && !todos.length) {
+      return <p>Loading ...</p>
+    }
+    return <TodoList todos={todos} onTodoClick={toggleTodo} />; //presentational component
   }
 };
 
@@ -33,7 +39,8 @@ const mapStateToProps = (state, { params }) => {
   const filter = params.filter || 'all'; //explicitly saving the filter
   return {
     todos: getVisibleTodos(state, filter),
-    filter //make it available inside the component
+    isFetching: getIsFetching(state, filter),
+    filter, //make it available inside the component
   }
 };
 

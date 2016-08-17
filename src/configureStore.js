@@ -1,6 +1,7 @@
 import { createStore } from 'redux';
 import todoApp from './reducers';
 
+//override store.dispatch to show more information
 const addLoggingToDispatch = (store) => {
   const rawDispatch = store.dispatch;
   if (!console.group) {
@@ -18,6 +19,17 @@ const addLoggingToDispatch = (store) => {
   };
 };
 
+//override store.dispatch to support async / promises
+const addPromiseSupportToDispatch = (store) => {
+  const rawDispatch = store.dispatch;
+  return (action) => {
+    if (typeof action.then === 'function') { //if the then field of the action is a function (action is a promise)
+      return action.then(rawDispatch);  //resolve and then normal dispatch
+    }
+    return rawDispatch(action); //it's a normal action so just dispatch it
+  };
+};
+
 const configureStore = () => {
   const store = createStore(todoApp);
 
@@ -25,6 +37,9 @@ const configureStore = () => {
   if(process.env.NODE_ENV !== 'production') {
     store.dispatch = addLoggingToDispatch(store);
   }
+
+  //important to override after the other override
+  store.dispatch = addPromiseSupportToDispatch(store);
 
   return store; //return a store ready to be used
 }

@@ -4,7 +4,6 @@ import { withRouter } from 'react-router';
 import * as actions from '../actions';
 import TodoList from './TodoList';
 import { getVisibleTodos } from '../reducers';
-import { fetchTodos } from '../api';
 
 //making this a react component so that it's possible to access its lifecycle and make the api call there
 class VisibleTodoList extends Component {
@@ -19,11 +18,10 @@ class VisibleTodoList extends Component {
   }
 
   fetchData(){
-    const { filter, receiveTodos } = this.props;
-    fetchTodos(filter).then(todos =>
-      receiveTodos(filter, todos) // get the todos from server then dispatch an action
-    )
+    const { filter, fetchTodos } = this.props;
+    fetchTodos(filter);
   }
+  
   render() {
     //destructuring the props as toggle Todo as to be passed down under a different name
     const { toggleTodo, ...rest } = this.props;

@@ -1,6 +1,15 @@
 import { combineReducers } from 'redux';
 
 const createList = (filter) => {
+  const handleToggle = (state, action) => {
+    const { result: toggledId, entities } = action.response; //reference Id and list of todos
+    const { completed } = entities.todos[toggledId]; //reference single todo's completed field
+    const shouldRemove = ( completed && filter === 'active') || (!completed && filter === 'completed'); //we want to remove it in these two cases
+    return shouldRemove ?
+      state.filter(id => id !== toggledId) :
+      state;
+  };
+
   const ids = (state = [], action) => {
     switch (action.type) {
       case 'FETCH_TODOS_SUCCESS':
@@ -11,6 +20,8 @@ const createList = (filter) => {
         return filter !== 'completed' ? //filter is not 'completed'?
         [...state, action.response.result] : //add id to the registry
         state; //else return state
+      case 'TOGGLE_TODO_SUCCESS':
+        return handleToggle(state, action);
       default:
         return state;
     }

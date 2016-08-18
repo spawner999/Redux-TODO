@@ -5,11 +5,11 @@ const createList = (filter) => {
     switch (action.type) {
       case 'FETCH_TODOS_SUCCESS':
         return filter === action.filter ? //filters matching?
-        action.response.map(todo => todo.id) : //get the response from server then save the ids
+        action.response.result : //get the response from server then save the ids
         state; //else return state
       case 'ADD_TODO_SUCCESS':
         return filter !== 'completed' ? //filter is not 'completed'?
-        [...state, action.response.id] : //add id to the registry
+        [...state, action.response.result] : //add id to the registry
         state; //else return state
       default:
         return state;
